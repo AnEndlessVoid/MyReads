@@ -14,40 +14,42 @@ class Search extends Component {
     }
 
     /**
-     * Update the query to hit the api with, search the api with that query and set the state of the page
-     * @param {string} query string request to hit api with
-     */
-    updateQuery = (query) => {
-        const { libraryBooks } = this.props;
+        * Update the query to hit the api with, search the api with that query and set the state of the page
+        * @param {string} query string request to hit api with
+        */
+       updateQuery = (query) => {
+           const { libraryBooks } = this.props;
 
-        this.setState({ query: query });
-        const trimmedQuery = query.trim();
-        if (trimmedQuery === '') {
-        this.setState({ books: [] });
-                        return ;
-        }
-        BooksAPI.search(trimmedQuery, 5).then((response) => {
-            if (response && response.length) {
-                const books = response.map((book) => {
-                    const libBook = libraryBooks.find((libBook) => libBook.id === book.id);
-                    const shelf = libBook ? libBook.shelf : 'none';
-                    return {
-                        id: book.id,
-                        shelf: shelf,
-                        authors: book.authors !== undefined ? book.authors : 'Author name not found',
-                        title: book.title !== undefined ? book.title : 'Book Title not found',
+           this.setState({ query: query });
+           const trimmedQuery = query.trim();
+           if (trimmedQuery === '') {
+           this.setState({ books: [] });
+                           return ;
+           }
+           BooksAPI.search(trimmedQuery, 5).then((response) => {
+             if (response.error || !response){
+               this.setState({ books: []})
+             }
+             else if (response && response.length) {
+               const books = response.map((book) => {
+                 const libBook = libraryBooks.find((libBook) => libBook.id === book.id);
+                 const shelf = libBook ? libBook.shelf : 'none';
+                  return {
+                           id: book.id,
+                           shelf: shelf,
+                           authors: book.authors !== undefined ? book.authors : 'Author name not found',
+                           title: book.title !== undefined ? book.title : 'Book Title not found',
 
-                        imageLinks: {
-                                thumbnail: book.imageLinks !== undefined  ? book.imageLinks.thumbnail : 'http://via.placeholder.com/128x193?text=No%20Cover'
-                        }
+                           imageLinks: {
+                                   thumbnail: book.imageLinks !== undefined  ? book.imageLinks.thumbnail : 'http://via.placeholder.com/128x193?text=No%20Cover'
+                           }
 
-                    };
-                });
-                this.setState({ books });
-            }
-        });
-    };
-
+                       };
+                   });
+                   this.setState({ books });
+               }
+           });
+       };
     render () {
         const { books } = this.state;
         const { updateBookShelf } = this.props;
